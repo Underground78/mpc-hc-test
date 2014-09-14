@@ -927,6 +927,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
     UpdateSkypeHandler();
 
+    /* Do some stuff not ready yet for stable */
+
     return 0;
 }
 
