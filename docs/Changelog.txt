@@ -8,8 +8,8 @@ Legend:
 ! Fixed
 
 
-next version - not released yet
-===============================
+1.7.7 - 14 September 2014
+=========================
 + Accept loading more than one subtitle file at a time using the "Load subtitle" dialog or drag-and-drop
 + Add advanced settings page
 + Add Arabic and Thai translations
