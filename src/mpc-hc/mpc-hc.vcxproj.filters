@@ -381,6 +381,15 @@
     <ClCompile Include="ColorButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PPageAdvanced.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveImageDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CmdLineHelpDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppSettings.h">
@@ -771,6 +780,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ColorButton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PPageAdvanced.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveImageDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CmdLineHelpDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

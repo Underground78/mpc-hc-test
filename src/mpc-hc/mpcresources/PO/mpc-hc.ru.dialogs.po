@@ -2,13 +2,14 @@
 # Copyright (C) 2002 - 2013 see Authors.txt
 # This file is distributed under the same license as the MPC-HC package.
 # Translators:
-# kefir500 <kefir500@gmail.com>, 2014
+# Alexander Gorishnyak <kefir500@gmail.com>, 2014
 # sayanvd <sayanvd@yandex.ru>, 2014
+# stryaponoff <stryaponoff@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: MPC-HC\n"
-"POT-Creation-Date: 2014-05-11 19:53:40+0000\n"
-"PO-Revision-Date: 2014-05-12 08:40+0000\n"
+"POT-Creation-Date: 2014-08-19 21:13:19+0000\n"
+"PO-Revision-Date: 2014-08-20 10:02+0000\n"
 "Last-Translator: JellyFrog\n"
 "Language-Team: Russian (http://www.transifex.com/projects/p/mpc-hc/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -305,6 +306,10 @@ msgctxt "IDD_PPAGEPLAYER_IDC_CHECK9"
 msgid "Process priority above normal"
 msgstr "Повышенный приоритет процесса"
 
+msgctxt "IDD_PPAGEPLAYER_IDC_CHECK14"
+msgid "Enable cover-art support"
+msgstr ""
+
 msgctxt "IDD_PPAGEPLAYER_IDC_STATIC"
 msgid "History"
 msgstr "История / Позиция"
@@ -417,9 +422,9 @@ msgctxt "IDD_PPAGEPLAYBACK_IDC_STATIC1"
 msgid "time(s)"
 msgstr "раз"
 
-msgctxt "IDD_PPAGEPLAYBACK_IDC_CHECK1"
-msgid "Rewind when done playing"
-msgstr "Перемотать в конце"
+msgctxt "IDD_PPAGEPLAYBACK_IDC_STATIC"
+msgid "After Playback"
+msgstr ""
 
 msgctxt "IDD_PPAGEPLAYBACK_IDC_STATIC"
 msgid "Output"
@@ -529,21 +534,37 @@ msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC"
 msgid "Maximum texture resolution:"
 msgstr "Максимальный размер текстуры:"
 
-msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_SPCANIMWITHBUFFER"
-msgid "Allow animation when buffering"
-msgstr "Включить анимацию при буферизации"
+msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_NO_SUB_ANIM"
+msgid "Never animate the subtitles"
+msgstr ""
 
-msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_SPCPOW2TEX"
-msgid "Round up to power of two"
-msgstr "Округлять до кратного 2"
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC5"
+msgid "Render at"
+msgstr ""
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC6"
+msgid "% of the animation"
+msgstr ""
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC7"
+msgid "Animate at"
+msgstr ""
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC8"
+msgid "% of the video frame rate"
+msgstr ""
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_ALLOW_DROPPING_SUBPIC"
+msgid "Allow dropping some subpictures if the queue is running late"
+msgstr ""
 
 msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC"
 msgid "Renderer Layout"
-msgstr ""
+msgstr "Раскладка рендера"
 
 msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_SUB_AR_COMPENSATION"
 msgid "Apply aspect ratio compensation for anamorphic videos"
-msgstr ""
+msgstr "Компенсировать соотношение сторон для анаморфированного видео"
 
 msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC"
 msgid "Warning"
@@ -657,7 +678,7 @@ msgctxt "IDD_PPAGETWEAKS_IDC_BUTTON1"
 msgid "Default"
 msgstr "По умолчанию"
 
-msgctxt "IDD_PPAGETWEAKS_IDC_CHECK1"
+msgctxt "IDD_PPAGETWEAKS_IDC_FASTSEEK_CHECK"
 msgid "Fast seek (on keyframe)"
 msgstr "Быстрая перемотка (по ключевым кадрам)"
 
@@ -927,6 +948,10 @@ msgstr "мс"
 
 msgctxt "IDD_SAVESUBTITLESFILEDIALOGTEMPL_IDC_CHECK1"
 msgid "Save custom style"
+msgstr "Сохранить пользовательский стиль"
+
+msgctxt "IDD_SAVETHUMBSDIALOGTEMPL_IDC_STATIC"
+msgid "JPEG quality:"
 msgstr ""
 
 msgctxt "IDD_SAVETHUMBSDIALOGTEMPL_IDC_STATIC"
@@ -1628,4 +1653,32 @@ msgstr "PS 2.0a"
 msgctxt "IDD_DEBUGSHADERS_DLG_IDC_RADIO4"
 msgid "PS 3.0"
 msgstr "PS 3.0"
+
+msgctxt "IDD_PPAGEADVANCED_IDC_STATIC"
+msgid "Advanced Settings, do not edit unless you know what you are doing."
+msgstr "Расширенные настройки. Убедитесь, в том, что вы знаете, что делаете."
+
+msgctxt "IDD_PPAGEADVANCED_IDC_RADIO1"
+msgid "True"
+msgstr ""
+
+msgctxt "IDD_PPAGEADVANCED_IDC_RADIO2"
+msgid "False"
+msgstr ""
+
+msgctxt "IDD_PPAGEADVANCED_IDC_BUTTON1"
+msgid "Default"
+msgstr "По умолчанию"
+
+msgctxt "IDD_SAVEIMAGEDIALOGTEMPL_IDC_STATIC"
+msgid "JPEG quality:"
+msgstr ""
+
+msgctxt "IDD_CMD_LINE_HELP_CAPTION"
+msgid "Command line help"
+msgstr ""
+
+msgctxt "IDD_CMD_LINE_HELP_IDOK"
+msgid "OK"
+msgstr ""
 

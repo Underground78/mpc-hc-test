@@ -185,7 +185,7 @@
 #define ID_AFTERPLAYBACK_SHUTDOWN       915
 #define ID_AFTERPLAYBACK_LOGOFF         916
 #define ID_AFTERPLAYBACK_LOCK           917
-#define ID_AFTERPLAYBACK_DONOTHING      918
+#define ID_AFTERPLAYBACK_MONITOROFF     918
 #define ID_NAVIGATE_SKIPBACKFILE        919
 #define ID_NAVIGATE_SKIPFORWARDFILE     920
 #define ID_NAVIGATE_SKIPBACK            921
@@ -391,6 +391,7 @@
 #define IDC_CHECK11                     11090
 #define IDC_CHECK12                     11091
 #define IDC_CHECK13                     11092
+#define IDC_CHECK14                     11093
 #define IDC_SPIN1                       11100
 #define IDC_SPIN2                       11101
 #define IDC_SPIN3                       11102
@@ -451,8 +452,8 @@
 #define IDC_LOGOFILENAME                12016
 #define IDC_AUTHOR                      12018
 #define IDC_CHECK_RELATIVETO            12019
-#define IDC_CHECK_SPCPOW2TEX            12020
-#define IDC_CHECK_SPCANIMWITHBUFFER     12021
+#define IDC_CHECK_NO_SUB_ANIM           12021
+#define IDC_SUBPIC_TO_BUFFER            12022
 #define IDC_BUTTON_EXT_SET              12023
 #define IDC_OK1                         12024
 #define IDC_OK2                         12025
@@ -460,6 +461,7 @@
 #define IDC_PLAYERTIME                  12027
 #define IDC_EDITLIST                    12028
 #define IDC_CHECK_SUB_AR_COMPENSATION   12029
+#define IDC_CHECK_ALLOW_DROPPING_SUBPIC 12030
 #define IDC_DSSYSDEF                    12100
 #define IDC_DSOLD                       12101
 #define IDC_DSOVERLAYMIXER              12102
@@ -567,6 +569,7 @@
 #define IDS_STATSBAR_SIGNAL             14199
 #define IDS_STATSBAR_SIGNAL_FORMAT      14200
 #define IDS_SUBTITLES_STYLES_CAPTION    14201
+#define IDS_TEXT_SUB_RENDERING_TARGET   14202
 #define IDD_TUNER_SCAN                  20002
 #define IDS_AG_RESET_STATS              20004
 #define IDD_NAVIGATION_DLG              20005
@@ -578,6 +581,9 @@
 #define IDD_UPDATE_DIALOG               20011
 #define IDF_WIN7_TOOLBAR                20012
 #define IDD_DEBUGSHADERS_DLG            20013
+#define IDD_PPAGEADVANCED               20014
+#define IDD_SAVEIMAGEDIALOGTEMPL        20015
+#define IDD_CMD_LINE_HELP               20016
 #define IDC_FULLSCREEN_MONITOR_CHECK    22002
 #define IDC_SLI_CONTRAST                22003
 #define IDC_RESET                       22004
@@ -644,6 +650,7 @@
 #define IDC_PPAGECAPTURE_ST10           22078
 #define IDC_PPAGECAPTURE_ST11           22079
 #define IDC_PPAGECAPTURE_ST12           22080
+#define IDC_FASTSEEK_CHECK              22081
 #define ID_SUB_DELAY_DOWN               24000
 #define ID_SUB_DELAY_UP                 24001
 #define IDS_MPLAYERC_104                24002
@@ -836,6 +843,7 @@
 #define IDS_THUMBNAILS_INFO_HEADER      33066
 #define IDS_THUMBNAIL_TOO_SMALL         33067
 #define IDS_CANNOT_LOAD_SUB             33068
+#define IDS_SUBTITLE_FILES_FILTER       33069
 #define IDS_MAINFRM_68                  33075
 #define IDS_MAINFRM_69                  33076
 #define IDS_MAINFRM_70                  33077
@@ -983,10 +991,6 @@
 #define ID_VIEW_SYNCHRONIZEVIDEO        33408
 #define ID_VIEW_SYNCHRONIZEDISPLAY      33409
 #define ID_VIEW_SYNCHRONIZENEAREST      33410
-#define ID_AFTERPLAYBACK_EXIT           33411
-#define ID_AFTERPLAYBACK_NEXT           33412
-#define ID_AFTERPLAYBACK_ONCE           33413
-#define ID_AFTERPLAYBACK_EVERYTIME      33414
 #define ID_VIEW_NAVIGATION              33415
 #define IDS_AG_VIDFRM_ZOOM1             33419
 #define IDS_AG_VIDFRM_ZOOM2             33420
@@ -1209,9 +1213,7 @@
 #define IDS_AFTERPLAYBACK_SHUTDOWN      41299
 #define IDS_AFTERPLAYBACK_LOGOFF        41300
 #define IDS_AFTERPLAYBACK_LOCK          41301
-#define IDS_AFTERPLAYBACK_EXIT          41302
-#define IDS_AFTERPLAYBACK_DONOTHING     41303
-#define IDS_AFTERPLAYBACK_NEXT          41304
+#define IDS_AFTERPLAYBACK_MONITOROFF    41302
 #define IDS_OSD_BRIGHTNESS              41305
 #define IDS_OSD_CONTRAST                41306
 #define IDS_OSD_HUE                     41307
@@ -1424,14 +1426,30 @@
 #define IDS_CREDENTIALS_CONNECT         57400
 #define IDS_SUB_SAVE_EXTERNAL_STYLE_FILE 57401
 #define IDS_CONTENT_EDUCATION_SCIENCE   57402
+#define IDS_PPAGEADVANCED_HIDE_WINDOWED 57403
+#define IDS_PPAGEADVANCED_BLOCK_VSFILTER 57404
+#define IDS_PPAGEADVANCED_COL_NAME      57405
+#define IDS_PPAGEADVANCED_COL_VALUE     57406
+#define IDS_PPAGEADVANCED_RECENT_FILES_NUMBER 57407
+#define IDS_PPAGEADVANCED_FILE_POS_LONGER 57408
+#define IDS_PPAGEADVANCED_FILE_POS_AUDIO 57409
+#define IDS_AFTER_PLAYBACK_DO_NOTHING   57410
+#define IDS_AFTER_PLAYBACK_PLAY_NEXT    57411
+#define IDS_AFTER_PLAYBACK_REWIND       57412
+#define IDS_AFTER_PLAYBACK_CLOSE        57413
+#define IDS_AFTER_PLAYBACK_EXIT         57414
+#define IDS_AFTER_PLAYBACK_MONITOROFF   57415
+#define IDS_IMAGE_JPEG_QUALITY          57416
+#define IDS_IMAGE_QUALITY               57417
+#define IDS_PPAGEADVANCED_COVER_SIZE_LIMIT 57418
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        20014
+#define _APS_NEXT_RESOURCE_VALUE        20017
 #define _APS_NEXT_COMMAND_VALUE         33449
-#define _APS_NEXT_CONTROL_VALUE         22078
+#define _APS_NEXT_CONTROL_VALUE         22081
 #define _APS_NEXT_SYMED_VALUE           24044
 #endif
 #endif

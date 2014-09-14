@@ -8,8 +8,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MPC-HC\n"
-"POT-Creation-Date: 2014-04-22 11:15:01+0000\n"
-"PO-Revision-Date: 2014-06-25 11:40+0000\n"
+"POT-Creation-Date: 2014-08-19 21:10:25+0000\n"
+"PO-Revision-Date: 2014-08-20 21:10+0000\n"
 "Last-Translator: Apa <sakcheen@gmail.com>\n"
 "Language-Team: Swedish (http://www.transifex.com/projects/p/mpc-hc/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -320,27 +320,27 @@ msgstr "&Absolut kolorimetri"
 
 msgctxt "POPUP"
 msgid "&VSync"
-msgstr "&VSync"
+msgstr "&Vertikalsynk"
 
 msgctxt "ID_VIEW_VSYNC"
 msgid "&VSync"
-msgstr "&VSync"
+msgstr "&Vertikalsynk"
 
 msgctxt "ID_VIEW_VSYNCACCURATE"
 msgid "&Accurate VSync"
-msgstr "&Exakt VSync"
+msgstr "&Exakt vertikalsynk"
 
 msgctxt "ID_VIEW_ALTERNATIVEVSYNC"
 msgid "A&lternative VSync"
-msgstr "&Alternativ VSync"
+msgstr "&Alternativ vertikalsynk"
 
 msgctxt "ID_VIEW_VSYNCOFFSET_DECREASE"
 msgid "&Decrease VSync Offset"
-msgstr "&Minska VSync-förskjutningen"
+msgstr "&Minska vertikalsynkförskjutningen"
 
 msgctxt "ID_VIEW_VSYNCOFFSET_INCREASE"
 msgid "&Increase VSync Offset"
-msgstr "&Öka VSync-förskjutningen"
+msgstr "&Öka vertikalsynkförskjutningen"
 
 msgctxt "POPUP"
 msgid "&GPU Control"
@@ -348,7 +348,7 @@ msgstr "GPU-kontroll"
 
 msgctxt "ID_VIEW_FLUSHGPU_BEFOREVSYNC"
 msgid "Flush GPU &before VSync"
-msgstr "Töm GPU &före VSync"
+msgstr "Töm GPU &före vertikalsynk"
 
 msgctxt "ID_VIEW_FLUSHGPU_AFTERPRESENT"
 msgid "Flush GPU &after Present"
@@ -584,51 +584,35 @@ msgstr "&Ljud av"
 
 msgctxt "POPUP"
 msgid "Af&ter Playback"
-msgstr "Efter Uppspelning"
-
-msgctxt "ID_AFTERPLAYBACK_ONCE"
-msgid "--------- Once ---------"
-msgstr "-------- En gång --------"
+msgstr "Efter &Uppspelning"
 
 msgctxt "ID_AFTERPLAYBACK_CLOSE"
 msgid "&Exit"
-msgstr "Avsluta"
+msgstr "&Avsluta"
 
 msgctxt "ID_AFTERPLAYBACK_STANDBY"
 msgid "&Stand By"
-msgstr "Vänteläge"
+msgstr "&Vänteläge"
 
 msgctxt "ID_AFTERPLAYBACK_HIBERNATE"
 msgid "&Hibernate"
-msgstr "Viloläge"
+msgstr "V&iloläge"
 
 msgctxt "ID_AFTERPLAYBACK_SHUTDOWN"
 msgid "Shut&down"
-msgstr "Stäng av"
+msgstr "&Stäng av"
 
 msgctxt "ID_AFTERPLAYBACK_LOGOFF"
 msgid "Log &Off"
-msgstr "Logga ut"
+msgstr "Logga &ut"
 
 msgctxt "ID_AFTERPLAYBACK_LOCK"
 msgid "&Lock"
-msgstr "Lås"
+msgstr "&Lås"
 
-msgctxt "ID_AFTERPLAYBACK_EVERYTIME"
-msgid "------ Every time ------"
-msgstr "------ Varje gång ------"
-
-msgctxt "ID_AFTERPLAYBACK_EXIT"
-msgid "E&xit"
-msgstr "Avsluta"
-
-msgctxt "ID_AFTERPLAYBACK_DONOTHING"
-msgid "Do &Nothing"
-msgstr "Gör Ingenting"
-
-msgctxt "ID_AFTERPLAYBACK_NEXT"
-msgid "Play next in the &folder"
-msgstr "Spela nästa fil i mappen"
+msgctxt "ID_AFTERPLAYBACK_MONITOROFF"
+msgid "Turn off the &monitor"
+msgstr "Stäng av &bildskärmen"
 
 msgctxt "POPUP"
 msgid "&Navigate"

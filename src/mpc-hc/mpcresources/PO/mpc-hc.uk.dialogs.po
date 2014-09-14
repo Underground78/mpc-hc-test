@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: MPC-HC\n"
-"POT-Creation-Date: 2014-06-03 21:36:02+0000\n"
-"PO-Revision-Date: 2014-06-21 12:03+0000\n"
+"POT-Creation-Date: 2014-08-31 21:07:30+0000\n"
+"PO-Revision-Date: 2014-09-12 12:40+0000\n"
 "Last-Translator: arestarh1986 <arestarh@ukr.net>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/projects/p/mpc-hc/language/uk/)\n"
 "MIME-Version: 1.0\n"
@@ -304,6 +304,10 @@ msgctxt "IDD_PPAGEPLAYER_IDC_CHECK9"
 msgid "Process priority above normal"
 msgstr "Підвищений пріоритет процесу"
 
+msgctxt "IDD_PPAGEPLAYER_IDC_CHECK14"
+msgid "Enable cover-art support"
+msgstr "Ввімкнути підтримку обкладинок"
+
 msgctxt "IDD_PPAGEPLAYER_IDC_STATIC"
 msgid "History"
 msgstr "Історія"
@@ -416,9 +420,9 @@ msgctxt "IDD_PPAGEPLAYBACK_IDC_STATIC1"
 msgid "time(s)"
 msgstr "раз"
 
-msgctxt "IDD_PPAGEPLAYBACK_IDC_CHECK1"
-msgid "Rewind when done playing"
-msgstr "Перемотати в кінці"
+msgctxt "IDD_PPAGEPLAYBACK_IDC_STATIC"
+msgid "After Playback"
+msgstr "Після відтворення"
 
 msgctxt "IDD_PPAGEPLAYBACK_IDC_STATIC"
 msgid "Output"
@@ -528,17 +532,33 @@ msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC"
 msgid "Maximum texture resolution:"
 msgstr "Максимальний розмір текстури:"
 
-msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_SPCANIMWITHBUFFER"
-msgid "Allow animation when buffering"
-msgstr "Дозволити анімацію при буферизації"
+msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_NO_SUB_ANIM"
+msgid "Never animate the subtitles"
+msgstr "Не застосовувати анімацію субтитрів"
 
-msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_SPCPOW2TEX"
-msgid "Round up to power of two"
-msgstr "Заокруглювати до кратності 2"
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC5"
+msgid "Render at"
+msgstr "Рендеринг зі швидк."
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC6"
+msgid "% of the animation"
+msgstr "% від повної анімації"
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC7"
+msgid "Animate at"
+msgstr "Анімація зі швидк."
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC8"
+msgid "% of the video frame rate"
+msgstr "% від швидк. відтвор. відео"
+
+msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_ALLOW_DROPPING_SUBPIC"
+msgid "Allow dropping some subpictures if the queue is running late"
+msgstr "Дозволити випадання деяких фрагментів субтитрів якщо черга запущена пізно"
 
 msgctxt "IDD_PPAGESUBTITLES_IDC_STATIC"
 msgid "Renderer Layout"
-msgstr ""
+msgstr "Розкладка рендерера"
 
 msgctxt "IDD_PPAGESUBTITLES_IDC_CHECK_SUB_AR_COMPENSATION"
 msgid "Apply aspect ratio compensation for anamorphic videos"
@@ -656,7 +676,7 @@ msgctxt "IDD_PPAGETWEAKS_IDC_BUTTON1"
 msgid "Default"
 msgstr "Типово"
 
-msgctxt "IDD_PPAGETWEAKS_IDC_CHECK1"
+msgctxt "IDD_PPAGETWEAKS_IDC_FASTSEEK_CHECK"
 msgid "Fast seek (on keyframe)"
 msgstr "Швидке перемотування (по ключ. кадрам)"
 
@@ -927,6 +947,10 @@ msgstr "мс"
 msgctxt "IDD_SAVESUBTITLESFILEDIALOGTEMPL_IDC_CHECK1"
 msgid "Save custom style"
 msgstr "Зберегти користув. стиль"
+
+msgctxt "IDD_SAVETHUMBSDIALOGTEMPL_IDC_STATIC"
+msgid "JPEG quality:"
+msgstr "Якість JPEG:"
 
 msgctxt "IDD_SAVETHUMBSDIALOGTEMPL_IDC_STATIC"
 msgid "Thumbnails:"
@@ -1627,4 +1651,32 @@ msgstr "PS 2.0a"
 msgctxt "IDD_DEBUGSHADERS_DLG_IDC_RADIO4"
 msgid "PS 3.0"
 msgstr "PS 3.0"
+
+msgctxt "IDD_PPAGEADVANCED_IDC_STATIC"
+msgid "Advanced Settings, do not edit unless you know what you are doing."
+msgstr "Розширені налаштування, не редагуйте, якщо точно не знаєте що робите"
+
+msgctxt "IDD_PPAGEADVANCED_IDC_RADIO1"
+msgid "True"
+msgstr "Так"
+
+msgctxt "IDD_PPAGEADVANCED_IDC_RADIO2"
+msgid "False"
+msgstr "Ні"
+
+msgctxt "IDD_PPAGEADVANCED_IDC_BUTTON1"
+msgid "Default"
+msgstr "Типово"
+
+msgctxt "IDD_SAVEIMAGEDIALOGTEMPL_IDC_STATIC"
+msgid "JPEG quality:"
+msgstr "Якість JPEG:"
+
+msgctxt "IDD_CMD_LINE_HELP_CAPTION"
+msgid "Command line help"
+msgstr ""
+
+msgctxt "IDD_CMD_LINE_HELP_IDOK"
+msgid "OK"
+msgstr ""
 

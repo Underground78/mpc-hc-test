@@ -44,6 +44,7 @@
 #include <share.h>
 #include "mpc-hc_config.h"
 #include "../MathLibFix/MathLibFix.h"
+#include "CmdLineHelpDlg.h"
 
 
 #define HOOKS_BUGS_URL _T("https://trac.mpc-hc.org/ticket/3739")
@@ -524,6 +525,8 @@ CStringA GetContentType(CString fn, CAtlList<CString>* redir)
         } else if (ct == _T("audio/x-pn-realaudio")) {
             // rtsp://...
             res.emplace_back(_T("rtsp://[^\n]+"), reFlags);
+            // http://...
+            res.emplace_back(_T("http://[^\n]+"), reFlags);
         }
 
         if (!body.IsEmpty()) {
@@ -681,19 +684,17 @@ BOOL CMPlayerCApp::PumpMessage()
 
 void CMPlayerCApp::ShowCmdlnSwitches() const
 {
-    CString s;
+    CString cmdLine;
 
-    if (m_s->nCLSwitches & CLSW_UNRECOGNIZEDSWITCH) {
-        CAtlList<CString> sl;
-        for (int i = 0; i < __argc; i++) {
-            sl.AddTail(__targv[i]);
+    if ((m_s->nCLSwitches & CLSW_UNRECOGNIZEDSWITCH) && __argc > 0) {
+        cmdLine = __targv[0];
+        for (int i = 1; i < __argc; i++) {
+            cmdLine.AppendFormat(_T(" %s"), __targv[i]);
         }
-        s += ResStr(IDS_UNKNOWN_SWITCH) + Implode(sl, ' ') + _T("\n\n");
     }
 
-    s += ResStr(IDS_USAGE);
-
-    AfxMessageBox(s, MB_ICONINFORMATION | MB_OK);
+    CmdLineHelpDlg dlg(cmdLine);
+    dlg.DoModal();
 }
 
 CMPlayerCApp theApp; // The one and only CMPlayerCApp object
@@ -739,20 +740,27 @@ bool CMPlayerCApp::IsIniValid() const
 
 bool CMPlayerCApp::GetAppSavePath(CString& path)
 {
-    path.Empty();
-
     if (IsIniValid()) { // If settings ini file found, store stuff in the same folder as the exe file
         path = GetProgramPath();
     } else {
-        HRESULT hr = SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, path.GetBuffer(MAX_PATH));
-        path.ReleaseBuffer();
-        if (FAILED(hr)) {
-            return false;
-        }
-        CPath p;
-        p.Combine(path, _T("MPC-HC"));
-        path = (LPCTSTR)p;
+        return GetAppDataPath(path);
     }
+
+    return true;
+}
+
+bool CMPlayerCApp::GetAppDataPath(CString& path)
+{
+    path.Empty();
+
+    HRESULT hr = SHGetFolderPath(nullptr, CSIDL_APPDATA, nullptr, 0, path.GetBuffer(MAX_PATH));
+    path.ReleaseBuffer();
+    if (FAILED(hr)) {
+        return false;
+    }
+    CPath p;
+    p.Combine(path, _T("MPC-HC"));
+    path = (LPCTSTR)p;
 
     return true;
 }
@@ -1767,9 +1775,7 @@ BOOL CMPlayerCApp::InitInstance()
             ULONG ProcessIoPriority = 0x21;
             NTSTATUS NtStatus = NtSetInformationProcess(GetCurrentProcess(), ProcessIoPriority, &IoPriority, sizeof(ULONG));
             TRACE(_T("Set I/O Priority - %d\n"), NtStatus);
-#ifndef _DEBUG
             UNREFERENCED_PARAMETER(NtStatus);
-#endif
         }
     }
 
@@ -1980,6 +1986,8 @@ int CMPlayerCApp::ExitInstance()
     m_s->SaveSettings();
 
     m_s = nullptr;
+
+    CMPCPngImage::CleanUp();
 
     OleUninitialize();
 

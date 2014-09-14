@@ -371,9 +371,8 @@ IPin* AppendFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
             break;
         }
 
-        HRESULT hr;
-        if (FAILED(hr = pGB->ConnectDirect(pPin, pPinTo, nullptr))) {
-            hr = pGB->Connect(pPin, pPinTo);
+        if (FAILED(pGB->ConnectDirect(pPin, pPinTo, nullptr))) {
+            pGB->Connect(pPin, pPinTo);
             pGB->RemoveFilter(pBF);
             break;
         }
@@ -461,8 +460,7 @@ IPin* InsertFilter(IPin* pPin, CString DisplayName, IGraphBuilder* pGB)
             break;
         }
 
-        HRESULT hr;
-        if (FAILED(hr = pGB->ConnectDirect(pFrom, pFromTo, nullptr))) {
+        if (FAILED(pGB->ConnectDirect(pFrom, pFromTo, nullptr))) {
             pGB->RemoveFilter(pBF);
             pGB->ConnectDirect(pFrom, pTo, nullptr);
             break;
@@ -651,7 +649,7 @@ CString GetFilterPath(LPCTSTR clsid)
     if (ERROR_SUCCESS == key.Open(HKEY_CLASSES_ROOT, rootkey1 + clsid + _T("\\InprocServer32"), KEY_READ)
             || ERROR_SUCCESS == key.Open(HKEY_CLASSES_ROOT, rootkey2 + clsid + _T("\\InprocServer32"), KEY_READ)) {
         ULONG nCount = MAX_PATH;
-        key.QueryStringValue(NULL, path.GetBuffer(nCount), &nCount);
+        key.QueryStringValue(nullptr, path.GetBuffer(nCount), &nCount);
         path.ReleaseBuffer(nCount);
     }
 
@@ -662,7 +660,7 @@ CString GetFilterPath(const CLSID& clsid)
 {
     CString path;
 
-    LPOLESTR pStr = NULL;
+    LPOLESTR pStr = nullptr;
     if (S_OK == StringFromCLSID(clsid, &pStr) && pStr) {
         path = GetFilterPath(CString(pStr));
         CoTaskMemFree(pStr);
@@ -810,10 +808,17 @@ OpticalDiskType_t GetOpticalDiskType(TCHAR drive, CAtlList<CString>& files)
 
 CString GetDriveLabel(TCHAR drive)
 {
-    CString label;
-
     CString path;
     path.Format(_T("%c:\\"), drive);
+
+    return GetDriveLabel(CPath(path));
+}
+
+CString GetDriveLabel(CPath path)
+{
+    CString label;
+    path.StripToRoot();
+
     TCHAR VolumeNameBuffer[MAX_PATH], FileSystemNameBuffer[MAX_PATH];
     DWORD VolumeSerialNumber, MaximumComponentLength, FileSystemFlags;
     if (GetVolumeInformation(path,
@@ -2611,4 +2616,55 @@ void CorrectComboListWidth(CComboBox& m_pComboBox)
 
     // Set the width of the list box so that every item is completely visible.
     m_pComboBox.SetDroppedWidth(dx);
+}
+
+void CorrectComboBoxHeaderWidth(CWnd* pComboBox)
+{
+    if (!pComboBox) {
+        return;
+    }
+
+    CDC*   pDC = pComboBox->GetDC();
+    CFont* pFont = pComboBox->GetFont();
+    CFont* pOldFont = pDC->SelectObject(pFont);
+
+    CString str;
+    pComboBox->GetWindowText(str);
+    CSize szText = pDC->GetTextExtent(str);
+
+    TEXTMETRIC tm;
+    pDC->GetTextMetrics(&tm);
+    pDC->SelectObject(pOldFont);
+    pComboBox->ReleaseDC(pDC);
+
+    CRect r;
+    pComboBox->GetWindowRect(r);
+    pComboBox->GetOwner()->ScreenToClient(r);
+
+    r.right = r.left + ::GetSystemMetrics(SM_CXMENUCHECK) + ::GetSystemMetrics(SM_CXEDGE) + szText.cx + tm.tmAveCharWidth;
+    pComboBox->MoveWindow(r);
+}
+
+CString FindCoverArt(const CString& path, const CString& author)
+{
+    if (!path.IsEmpty()) {
+        CAtlList<CString> files;
+        FindFiles(path + _T("\\*front*.png"), files);
+        FindFiles(path + _T("\\*front*.jp*g"), files);
+        FindFiles(path + _T("\\*front*.bmp"), files);
+        FindFiles(path + _T("\\*cover*.png"), files);
+        FindFiles(path + _T("\\*cover*.jp*g"), files);
+        FindFiles(path + _T("\\*cover*.bmp"), files);
+        FindFiles(path + _T("\\*folder*.png"), files);
+        FindFiles(path + _T("\\*folder*.jp*g"), files);
+        FindFiles(path + _T("\\*folder*.bmp"), files);
+        FindFiles(path + _T("\\*") + author + _T("*.png"), files);
+        FindFiles(path + _T("\\*") + author + _T("*.jp*g"), files);
+        FindFiles(path + _T("\\*") + author + _T("*.bmp"), files);
+
+        if (!files.IsEmpty()) {
+            return files.GetHead();
+        }
+    }
+    return _T("");
 }

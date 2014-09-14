@@ -79,9 +79,9 @@ bool CALLBACK DSEnumProc2(LPGUID lpGUID,
     ASSERT(pStr);
     CString strGUID = *pStr;
 
-    if (lpGUID != nullptr) { // NULL only for "Primary Sound Driver".
+    if (lpGUID != nullptr) { // nullptr only for "Primary Sound Driver".
         if (strGUID == lpszDesc) {
-            memcpy((VOID*)&lpSoundGUID, lpGUID, sizeof(GUID));
+            memcpy((void*)&lpSoundGUID, lpGUID, sizeof(GUID));
         }
     }
 
@@ -153,7 +153,7 @@ CMpcAudioRenderer::CMpcAudioRenderer(LPUNKNOWN punk, HRESULT* phr)
 
     TRACE(_T("CMpcAudioRenderer constructor\n"));
     if (!m_useWASAPI) {
-        DirectSoundEnumerate((LPDSENUMCALLBACK)DSEnumProc2, (VOID*)&m_csSound_Device);
+        DirectSoundEnumerate((LPDSENUMCALLBACK)DSEnumProc2, (void*)&m_csSound_Device);
         m_pSoundTouch = DEBUG_NEW soundtouch::SoundTouch();
         *phr = DirectSoundCreate8(&lpSoundGUID, &m_pDS, nullptr);
     }
@@ -280,7 +280,7 @@ BOOL CMpcAudioRenderer::ScheduleSample(IMediaSample* pMediaSample)
             return TRUE;
         }
     } else {
-        hr = DoRenderSample(pMediaSample);
+        DoRenderSample(pMediaSample);
     }
 
     // We could not schedule the next sample for rendering despite the fact
@@ -321,9 +321,7 @@ STDMETHODIMP CMpcAudioRenderer::NonDelegatingQueryInterface(REFIID riid, void** 
 
 HRESULT CMpcAudioRenderer::SetMediaType(const CMediaType* pmt)
 {
-    if (!pmt) {
-        return E_POINTER;
-    }
+    CheckPointer(pmt, E_POINTER);
     TRACE(_T("CMpcAudioRenderer::SetMediaType\n"));
 
     if (m_useWASAPI) {
@@ -661,9 +659,7 @@ HRESULT CMpcAudioRenderer::EndOfStream()
 
 HRESULT CMpcAudioRenderer::CreateDSBuffer()
 {
-    if (!m_pWaveFileFormat) {
-        return E_POINTER;
-    }
+    CheckPointer(m_pWaveFileFormat, E_POINTER);
 
     HRESULT hr = S_OK;
     LPDIRECTSOUNDBUFFER pDSBPrimary = nullptr;
@@ -714,7 +710,7 @@ HRESULT CMpcAudioRenderer::CreateDSBuffer()
 HRESULT CMpcAudioRenderer::ClearBuffer()
 {
     HRESULT hr = S_FALSE;
-    VOID* pDSLockedBuffer = nullptr;
+    void* pDSLockedBuffer = nullptr;
     DWORD dwDSLockedSize = 0;
 
     if (m_pDSBuffer) {
@@ -733,7 +729,7 @@ HRESULT CMpcAudioRenderer::ClearBuffer()
 
 HRESULT CMpcAudioRenderer::InitCoopLevel()
 {
-    HRESULT hr = S_OK;
+    HRESULT hr;
     IVideoWindow* pVideoWindow = nullptr;
     HWND hWnd = nullptr;
 
@@ -769,7 +765,7 @@ HRESULT CMpcAudioRenderer::InitCoopLevel()
 
 HRESULT CMpcAudioRenderer::DoRenderSampleDirectSound(IMediaSample* pMediaSample)
 {
-    HRESULT hr = S_OK;
+    HRESULT hr;
     DWORD dwStatus = 0;
     const long lSize = pMediaSample->GetActualDataLength();
     DWORD dwPlayCursor = 0;
@@ -820,15 +816,13 @@ HRESULT CMpcAudioRenderer::DoRenderSampleDirectSound(IMediaSample* pMediaSample)
 
 HRESULT CMpcAudioRenderer::WriteSampleToDSBuffer(IMediaSample* pMediaSample, bool* looped)
 {
-    if (!m_pDSBuffer) {
-        return E_POINTER;
-    }
+    CheckPointer(m_pDSBuffer, E_POINTER);
 
     REFERENCE_TIME rtStart = 0;
     REFERENCE_TIME rtStop = 0;
-    HRESULT hr = S_OK;
+    HRESULT hr;
     bool loop = false;
-    VOID* pDSLockedBuffers[2] = { nullptr, nullptr };
+    void* pDSLockedBuffers[2] = { nullptr, nullptr };
     DWORD dwDSLockedSize[2] = { 0, 0 };
     BYTE* pMediaBuffer = nullptr;
     long lSize = pMediaSample->GetActualDataLength();
@@ -957,7 +951,7 @@ HRESULT CMpcAudioRenderer::DoRenderSampleWasapi(IMediaSample* pMediaSample)
             memcpy(&pData[0], pInputBufferPointer, nBytesToWrite);
             pInputBufferPointer += nBytesToWrite;
         } else {
-            TRACE(_T("CMpcAudioRenderer::DoRenderSampleWasapi Output buffer is NULL\n"));
+            TRACE(_T("CMpcAudioRenderer::DoRenderSampleWasapi Output buffer is nullptr\n"));
         }
 
         hr = m_pRenderClient->ReleaseBuffer(numFramesAvailable, 0); // no flags
@@ -1115,7 +1109,7 @@ HRESULT CMpcAudioRenderer::GetAudioDevice(IMMDevice** ppMMDevice)
 
                         // Found the configured audio endpoint
                         if ((pProps->GetValue(PKEY_Device_FriendlyName, &varName) == S_OK) && (m_csSound_Device == varName.pwszVal)) {
-                            TRACE(_T("CMpcAudioRenderer::GetAudioDevice - devices->GetId OK, num: (%d), pwszVal: %s, pwszID: %s\n"), i, varName.pwszVal, pwszID);
+                            TRACE(_T("CMpcAudioRenderer::GetAudioDevice - devices->GetId OK, num: (%u), pwszVal: %s, pwszID: %s\n"), i, varName.pwszVal, pwszID);
                             enumerator->GetDevice(pwszID, ppMMDevice);
                             SAFE_RELEASE(devices);
                             *(ppMMDevice) = endpoint;
@@ -1218,7 +1212,7 @@ HRESULT CMpcAudioRenderer::InitAudioClient(WAVEFORMATEX* pWaveFormatEx, IAudioCl
     CheckPointer(pAudioClient, E_POINTER);
     CheckPointer(ppRenderClient, E_POINTER);
 
-    HRESULT hr = S_OK;
+    HRESULT hr;
     // Initialize the stream to play at the minimum latency.
     //if (SUCCEEDED (hr)) hr = pAudioClient->GetDevicePeriod(nullptr, &hnsPeriod);
     m_hnsPeriod = 500000; //50 ms is the best according to James @Slysoft

@@ -36,22 +36,16 @@
 #pragma warning(disable: 4351) // new behavior: elements of array 'array' will be default initialized
 CAppSettings::CAppSettings()
     : fInitialized(false)
-    , MRU(0, _T("Recent File List"), _T("File%d"), 20)
-    , MRUDub(0, _T("Recent Dub List"), _T("Dub%d"), 20)
-    , filePositions(AfxGetApp(), IDS_R_SETTINGS, MAX_FILE_POSITION)
-    , dvdPositions(AfxGetApp(), IDS_R_SETTINGS, MAX_DVD_POSITION)
     , hAccel(nullptr)
     , nCmdlnWebServerPort(-1)
     , fShowDebugInfo(false)
     , hMasterWnd(nullptr)
     , nCLSwitches(0)
     , iMonitor(0)
-    , fMute(0)
-    , fPreventMinimize(0)
+    , fMute(false)
+    , fPreventMinimize(false)
     , fUseWin7TaskBar(true)
-    , fExitAfterPlayback(0)
-    , fNextInDirAfterPlayback(0)
-    , fUseSearchInFolder(0)
+    , fUseSearchInFolder(false)
     , fUseTimeTooltip(true)
     , nTimeTooltipPosition(TIME_TOOLTIP_ABOVE_SEEKBAR)
     , nOSDSize(0)
@@ -59,12 +53,12 @@ CAppSettings::CAppSettings()
     , fRemainingTime(false)
     , nUpdaterAutoCheck(-1)
     , nUpdaterDelay(7)
-    , fBDAUseOffset(0)
+    , fBDAUseOffset(false)
     , iBDABandwidth(8)
     , iBDAOffset(166)
     , iBDAScanFreqStart(474000)
     , iBDAScanFreqEnd(858000)
-    , fBDAIgnoreEncryptedChannels(0)
+    , fBDAIgnoreEncryptedChannels(false)
     , nDVBLastChannel(1)
     , nDVBStopFilterGraph(DVB_STOP_FG_WHEN_SWITCHING)
     , nDVBRebuildFilterGraph(DVB_REBUILD_FG_WHEN_SWITCHING)
@@ -72,11 +66,11 @@ CAppSettings::CAppSettings()
     , fAudioNormalize(false)
     , fAudioNormalizeRecover(true)
     , nAudioBoost(0)
-    , fDownSampleTo441(0)
-    , fAudioTimeShift(0)
+    , fDownSampleTo441(false)
+    , fAudioTimeShift(false)
     , iAudioTimeShift(0)
-    , fCustomChannelMapping(0)
-    , fOverridePlacement(0)
+    , fCustomChannelMapping(false)
+    , fOverridePlacement(false)
     , nHorPos(50)
     , nVerPos(90)
     , bSubtitleARCompensation(true)
@@ -96,7 +90,7 @@ CAppSettings::CAppSettings()
     , iHue(0)
     , iSaturation(0)
     , eCaptionMenuMode(MODE_SHOWCAPTIONMENU)
-    , fHideNavigation(0)
+    , fHideNavigation(false)
     , nCS(CS_SEEKBAR | CS_TOOLBAR | CS_STATUSBAR)
     , language(LANGID(-1))
     , fEnableSubtitles(true)
@@ -115,8 +109,8 @@ CAppSettings::CAppSettings()
     , bHidePlaylistFullScreen(false)
     , nLastWindowType(SIZE_RESTORED)
     , nLastUsedPage(0)
-    , fLastFullScreen(0)
-    , fIntRealMedia(0)
+    , fLastFullScreen(false)
+    , fIntRealMedia(false)
     , fEnableEDLEditor(false)
     , bNotifySkype(false)
     , nAudioMaxNormFactor(400)
@@ -135,13 +129,14 @@ CAppSettings::CAppSettings()
     , idSubtitlesLang(0)
     , nVolumeStep(5)
     , nSpeedStep(0)
+    , eAfterPlayback(AfterPlayback::DO_NOTHING)
     , fUseDVDPath(false)
     , rtShift(0)
     , rtStart(0)
     , lDVDTitle(0)
     , lDVDChapter(0)
     , iAdminOption(0)
-    , fAllowMultipleInst(0)
+    , fAllowMultipleInst(false)
     , fTrayIcon(false)
     , fShowOSD(true)
     , fLimitWindowProportions(false)
@@ -151,8 +146,15 @@ CAppSettings::CAppSettings()
     , iTitleBarTextStyle(1)
     , fTitleBarTextTitle(false)
     , fKeepHistory(true)
+    , iRecentFilesNumber(20)
+    , MRU(0, _T("Recent File List"), _T("File%d"), iRecentFilesNumber)
+    , MRUDub(0, _T("Recent Dub List"), _T("Dub%d"), iRecentFilesNumber)
+    , filePositions(AfxGetApp(), IDS_R_SETTINGS, iRecentFilesNumber)
+    , dvdPositions(AfxGetApp(), IDS_R_SETTINGS, iRecentFilesNumber)
     , fRememberDVDPos(false)
     , fRememberFilePos(false)
+    , iRememberPosForLongerThan(0)
+    , bRememberPosForAudioFiles(true)
     , bRememberPlaylistItems(true)
     , fRememberWindowPos(false)
     , fRememberWindowSize(false)
@@ -174,7 +176,6 @@ CAppSettings::CAppSettings()
     , nBalance(0)
     , nLoops(1)
     , fLoopForever(false)
-    , fRewind(false)
     , fRememberZoomLevel(true)
     , nAutoFitFactor(75)
     , iZoomLevel(1)
@@ -192,6 +193,9 @@ CAppSettings::CAppSettings()
     , bHideFullscreenDockedPanels(true)
     , bHideWindowedControls(false)
     , bHideWindowedMousePointer(true)
+    , nJpegQuality(90)
+    , bEnableCoverArt(true)
+    , nCoverArtSizeLimit(600)
 {
     // Internal source filter
 #if INTERNAL_SOURCEFILTER_CDDA
@@ -374,6 +378,9 @@ CAppSettings::CAppSettings()
 #if INTERNAL_DECODER_FLIC
     TraFiltersKeys[TRA_FLIC] = FilterKey(_T("TRA_FLIC"), true);
 #endif
+#if INTERNAL_DECODER_V210_V410
+    TraFiltersKeys[TRA_V210_V410] = FilterKey(_T("TRA_V210_V410"), false);
+#endif
 
     ZeroMemory(&DVDPosition, sizeof(DVDPosition));
 }
@@ -399,7 +406,7 @@ void CAppSettings::CreateCommands()
     ADDCMD((ID_FILE_CLOSE_AND_RESTORE,          'C', FVIRTKEY | FCONTROL | FNOINVERT,         IDS_AG_CLOSE));
     ADDCMD((ID_FILE_PROPERTIES,              VK_F10, FVIRTKEY | FSHIFT | FNOINVERT,           IDS_AG_PROPERTIES));
     ADDCMD((ID_FILE_EXIT,                       'X', FVIRTKEY | FALT | FNOINVERT,             IDS_AG_EXIT));
-    ADDCMD((ID_PLAY_PLAYPAUSE,             VK_SPACE, FVIRTKEY | FNOINVERT,                    IDS_AG_PLAYPAUSE,   APPCOMMAND_MEDIA_PLAY_PAUSE, wmcmd::LDOWN, wmcmd::LDOWN));
+    ADDCMD((ID_PLAY_PLAYPAUSE,             VK_SPACE, FVIRTKEY | FNOINVERT,                    IDS_AG_PLAYPAUSE,   APPCOMMAND_MEDIA_PLAY_PAUSE, wmcmd::LUP, wmcmd::LUP));
     ADDCMD((ID_PLAY_PLAY,                         0, FVIRTKEY | FNOINVERT,                    IDS_AG_PLAY,        APPCOMMAND_MEDIA_PLAY));
     ADDCMD((ID_PLAY_PAUSE,                        0, FVIRTKEY | FNOINVERT,                    IDS_AG_PAUSE,       APPCOMMAND_MEDIA_PAUSE));
     ADDCMD((ID_PLAY_STOP,             VK_OEM_PERIOD, FVIRTKEY | FNOINVERT,                    IDS_AG_STOP,        APPCOMMAND_MEDIA_STOP));
@@ -560,9 +567,7 @@ void CAppSettings::CreateCommands()
     ADDCMD((ID_AFTERPLAYBACK_SHUTDOWN,            0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_SHUTDOWN));
     ADDCMD((ID_AFTERPLAYBACK_LOGOFF,              0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_LOGOFF));
     ADDCMD((ID_AFTERPLAYBACK_LOCK,                0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_LOCK));
-    ADDCMD((ID_AFTERPLAYBACK_EXIT,                0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_EXIT));
-    ADDCMD((ID_AFTERPLAYBACK_DONOTHING,           0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_DONOTHING));
-    ADDCMD((ID_AFTERPLAYBACK_NEXT,                0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_NEXT));
+    ADDCMD((ID_AFTERPLAYBACK_MONITOROFF,          0, FVIRTKEY | FNOINVERT,                    IDS_AFTERPLAYBACK_MONITOROFF));
 
     ADDCMD((ID_VIEW_EDITLISTEDITOR,               0, FVIRTKEY | FNOINVERT,                    IDS_AG_TOGGLE_EDITLISTEDITOR));
     ADDCMD((ID_EDL_IN,                            0, FVIRTKEY | FNOINVERT,                    IDS_AG_EDL_IN));
@@ -640,7 +645,6 @@ void CAppSettings::SaveSettings()
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_MUTE, fMute);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LOOPNUM, nLoops);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LOOP, fLoopForever);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_REWIND, fRewind);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_ZOOM, iZoomLevel);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_MULTIINST, fAllowMultipleInst);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_TITLEBARTEXTSTYLE, iTitleBarTextStyle);
@@ -649,6 +653,7 @@ void CAppSettings::SaveSettings()
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_TRAYICON, fTrayIcon);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_AUTOZOOM, fRememberZoomLevel);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_AUTOFITFACTOR, nAutoFitFactor);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_AFTER_PLAYBACK, static_cast<int>(eAfterPlayback));
 
     VERIFY(pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_HIDE_FULLSCREEN_CONTROLS, bHideFullscreenControls));
     VERIFY(pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_HIDE_FULLSCREEN_CONTROLS_POLICY,
@@ -681,6 +686,7 @@ void CAppSettings::SaveSettings()
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_ASPECTRATIO_X, sizeAspectRatio.cx);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_ASPECTRATIO_Y, sizeAspectRatio.cy);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_KEEPHISTORY, fKeepHistory);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_RECENT_FILES_NUMBER, iRecentFilesNumber);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_DSVIDEORENDERERTYPE, iDSVideoRendererType);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_RMVIDEORENDERERTYPE, iRMVideoRendererType);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_QTVIDEORENDERERTYPE, iQTVideoRendererType);
@@ -740,8 +746,6 @@ void CAppSettings::SaveSettings()
     // Prevent Minimize when in Fullscreen mode on non default monitor
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_PREVENT_MINIMIZE, fPreventMinimize);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_WIN7TASKBAR, fUseWin7TaskBar);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_EXIT_AFTER_PB, fExitAfterPlayback);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_NEXT_AFTER_PB, fNextInDirAfterPlayback);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SEARCH_IN_FOLDER, fUseSearchInFolder);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_USE_TIME_TOOLTIP, fUseTimeTooltip);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_TIME_TOOLTIP_POSITION, nTimeTooltipPosition);
@@ -755,22 +759,21 @@ void CAppSettings::SaveSettings()
 
     // CASIMIR666 : new settings
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_D3DFULLSCREEN, fD3DFullscreen);
-    //pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_MONITOR_AUTOREFRESHRATE, fMonitorAutoRefreshRate);
 
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_BRIGHTNESS, iBrightness);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_CONTRAST, iContrast);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_HUE, iHue);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_SATURATION, iSaturation);
 
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SHOWOSD, (int)fShowOSD);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_ENABLEEDLEDITOR, (int)fEnableEDLEditor);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SHOWOSD, fShowOSD);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_ENABLEEDLEDITOR, fEnableEDLEditor);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LANGUAGE, language);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FASTSEEK, (int)bFastSeek);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FASTSEEK, bFastSeek);
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FASTSEEK_METHOD, eFastSeekMethod);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SHOW_CHAPTERS, (int)fShowChapters);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SHOW_CHAPTERS, fShowChapters);
 
 
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LCD_SUPPORT, (int)fLCDSupport);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LCD_SUPPORT, fLCDSupport);
 
     // Save analog capture settings
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_DEFAULT_CAPTURE, iDefaultCaptureDevice);
@@ -805,8 +808,10 @@ void CAppSettings::SaveSettings()
         iChannel++;
     }
 
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_DVDPOS, (int)fRememberDVDPos);
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOS, (int)fRememberFilePos);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_DVDPOS, fRememberDVDPos);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOS, fRememberFilePos);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOSLONGER, iRememberPosForLongerThan);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOSAUDIO, bRememberPosForAudioFiles);
     if (fKeepHistory) {
         if (fRememberFilePos) {
             filePositions.Save();
@@ -816,13 +821,10 @@ void CAppSettings::SaveSettings()
         }
     }
 
-    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LASTFULLSCREEN, (int)fLastFullScreen);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_LASTFULLSCREEN, fLastFullScreen);
     // CASIMIR666 : end of new settings
 
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_INTREALMEDIA, fIntRealMedia);
-    //pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_REALMEDIARENDERLESS, fRealMediaRenderless);
-    //pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_QUICKTIMERENDERER, iQuickTimeRenderer);
-    //pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_REALMEDIAFPS, *((DWORD*)&dRealMediaQuickTimeFPS));
 
     pApp->WriteProfileString(IDS_R_SETTINGS _T("\\") IDS_RS_PNSPRESETS, nullptr, nullptr);
     for (INT_PTR i = 0, j = m_pnspresets.GetCount(); i < j; i++) {
@@ -931,6 +933,11 @@ void CAppSettings::SaveSettings()
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_UPDATER_DELAY, nUpdaterDelay);
 
     pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_NOTIFY_SKYPE, bNotifySkype);
+
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_JPEG_QUALITY, nJpegQuality);
+
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_COVER_ART, bEnableCoverArt);
+    pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_COVER_ART_SIZE_LIMIT, nCoverArtSizeLimit);
 
     pApp->FlushProfile();
 }
@@ -1176,7 +1183,6 @@ void CAppSettings::LoadSettings()
     fMute = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_MUTE, FALSE);
     nLoops = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_LOOPNUM, 1);
     fLoopForever = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_LOOP, FALSE);
-    fRewind = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_REWIND, FALSE);
     iZoomLevel = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_ZOOM, 1);
     iDSVideoRendererType = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_DSVIDEORENDERERTYPE, (SysVersion::IsVistaOrLater() ? (HasEVR() ? VIDRNDT_DS_EVR_CUSTOM : VIDRNDT_DS_DEFAULT) : VIDRNDT_DS_VMR7WINDOWED));
     iRMVideoRendererType = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_RMVIDEORENDERERTYPE, VIDRNDT_RM_DEFAULT);
@@ -1201,6 +1207,7 @@ void CAppSettings::LoadSettings()
     fTrayIcon = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_TRAYICON, FALSE);
     fRememberZoomLevel = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_AUTOZOOM, TRUE);
     nAutoFitFactor = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_AUTOFITFACTOR, 75);
+    eAfterPlayback = static_cast<AfterPlayback>(pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_AFTER_PLAYBACK, 0));
 
     bHideFullscreenControls = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_HIDE_FULLSCREEN_CONTROLS, TRUE);
     eHideFullscreenControlsPolicy =
@@ -1216,8 +1223,6 @@ void CAppSettings::LoadSettings()
     // Prevent Minimize when in fullscreen mode on non default monitor
     fPreventMinimize = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_PREVENT_MINIMIZE, FALSE);
     fUseWin7TaskBar = SysVersion::Is7OrLater() ? !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_WIN7TASKBAR, TRUE) : FALSE;
-    fExitAfterPlayback = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_EXIT_AFTER_PB, FALSE);
-    fNextInDirAfterPlayback = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_NEXT_AFTER_PB, FALSE);
     fUseSearchInFolder = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SEARCH_IN_FOLDER, TRUE);
     fUseTimeTooltip = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_USE_TIME_TOOLTIP, TRUE);
     nTimeTooltipPosition = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_TIME_TOOLTIP_POSITION, TIME_TOOLTIP_ABOVE_SEEKBAR);
@@ -1284,6 +1289,11 @@ void CAppSettings::LoadSettings()
 
     fKeepHistory = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_KEEPHISTORY, TRUE);
     fileAssoc.SetNoRecentDocs(!fKeepHistory);
+    iRecentFilesNumber = std::max(0, (int)pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_RECENT_FILES_NUMBER, 20));
+    MRU.SetSize(iRecentFilesNumber);
+    MRUDub.SetSize(iRecentFilesNumber);
+    filePositions.SetMaxSize(iRecentFilesNumber);
+    dvdPositions.SetMaxSize(iRecentFilesNumber);
 
     if (pApp->GetProfileBinary(IDS_R_SETTINGS, IDS_RS_LASTWINDOWRECT, &ptr, &len)) {
         if (len == sizeof(CRect)) {
@@ -1313,7 +1323,7 @@ void CAppSettings::LoadSettings()
         CString temp = pApp->GetProfileString(IDS_R_SETTINGS, IDS_RS_SPSTYLE);
         subtitlesDefStyle <<= temp;
         if (temp.IsEmpty()) {
-            subtitlesDefStyle.relativeTo = 1; // default "Position subtitles relative to the video frame" option is checked
+            subtitlesDefStyle.relativeTo = STSStyle::AUTO; // default to auto mode
         }
     }
     fOverridePlacement = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SPOVERRIDEPLACEMENT, FALSE);
@@ -1378,12 +1388,8 @@ void CAppSettings::LoadSettings()
     LoadExternalFilters(m_filters);
 
     fIntRealMedia = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_INTREALMEDIA, FALSE);
-    //fRealMediaRenderless = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_REALMEDIARENDERLESS, FALSE);
-    //iQuickTimeRenderer = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_QUICKTIMERENDERER, 2);
-    //dRealMediaQuickTimeFPS = 25.0;
-    //*((DWORD*)&dRealMediaQuickTimeFPS) = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_REALMEDIAFPS, *((DWORD*)&dRealMediaQuickTimeFPS));
-
     m_pnspresets.RemoveAll();
+
     for (int i = 0; i < (ID_PANNSCAN_PRESETS_END - ID_PANNSCAN_PRESETS_START); i++) {
         CString str2;
         str2.Format(_T("Preset%d"), i);
@@ -1545,13 +1551,12 @@ void CAppSettings::LoadSettings()
     }
 
     // CASIMIR666 : new settings
-    fD3DFullscreen          = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_D3DFULLSCREEN, FALSE);
-    //fMonitorAutoRefreshRate = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_MONITOR_AUTOREFRESHRATE, FALSE);
+    fD3DFullscreen        = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_D3DFULLSCREEN, FALSE);
 
-    iBrightness = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_BRIGHTNESS, 0);
-    iContrast   = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_CONTRAST, 0);
-    iHue        = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_HUE, 0);
-    iSaturation = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_SATURATION, 0);
+    iBrightness           = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_BRIGHTNESS, 0);
+    iContrast             = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_CONTRAST, 0);
+    iHue                  = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_HUE, 0);
+    iSaturation           = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COLOR_SATURATION, 0);
 
     fShowOSD              = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SHOWOSD, TRUE);
     fEnableEDLEditor      = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_ENABLEEDLEDITOR, FALSE);
@@ -1599,6 +1604,8 @@ void CAppSettings::LoadSettings()
 
     // playback positions for last played files
     fRememberFilePos = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOS, FALSE);
+    iRememberPosForLongerThan = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOSLONGER, 0);
+    bRememberPosForAudioFiles = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_FILEPOSAUDIO, TRUE);
     filePositions.Load();
 
     // playback positions for last played DVDs
@@ -1616,6 +1623,14 @@ void CAppSettings::LoadSettings()
     }
 
     bNotifySkype = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_NOTIFY_SKYPE, FALSE);
+
+    nJpegQuality = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_JPEG_QUALITY, 90);
+    if (nJpegQuality < 0 || nJpegQuality > 100) {
+        nJpegQuality = 90;
+    }
+
+    bEnableCoverArt = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COVER_ART, TRUE);
+    nCoverArtSizeLimit = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_COVER_ART_SIZE_LIMIT, 600);
 
     if (fLaunchfullscreen) {
         nCLSwitches |= CLSW_FULLSCREEN;
@@ -1676,10 +1691,12 @@ void CAppSettings::UpdateRenderersData(bool fSave)
 
         pApp->WriteProfileInt(IDS_R_SETTINGS, _T("ResetDevice"), r.fResetDevice);
 
-        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SPCSIZE, r.nSPCSize);
-        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SPCMAXRES, r.nSPCMaxRes);
-        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_POW2TEX, r.fSPCPow2Tex);
-        pApp->WriteProfileInt(IDS_R_SETTINGS, _T("SPCAllowAnimationWhenBuffering"), r.fSPCAllowAnimationWhenBuffering);
+        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SPCSIZE, r.subPicQueueSettings.nSize);
+        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SPCMAXRES, r.subPicQueueSettings.nMaxRes);
+        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_DISABLE_SUBTITLE_ANIMATION, r.subPicQueueSettings.bDisableSubtitleAnimation);
+        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_RENDER_AT_WHEN_ANIM_DISABLED, r.subPicQueueSettings.nRenderAtWhenAnimationIsDisabled);
+        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_SUBTITLE_ANIMATION_RATE, r.subPicQueueSettings.nAnimationRate);
+        pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_ALLOW_DROPPING_SUBPIC, r.subPicQueueSettings.bAllowDroppingSubpic);
 
         pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_EVR_BUFFERS, r.iEvrBuffers);
 
@@ -1738,10 +1755,12 @@ void CAppSettings::UpdateRenderersData(bool fSave)
 
         r.fResetDevice = !!pApp->GetProfileInt(IDS_R_SETTINGS, _T("ResetDevice"), !SysVersion::IsVistaOrLater());
 
-        r.nSPCSize = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SPCSIZE, 10);
-        r.nSPCMaxRes = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SPCMAXRES, 0);
-        r.fSPCPow2Tex = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_POW2TEX, TRUE);
-        r.fSPCAllowAnimationWhenBuffering = !!pApp->GetProfileInt(IDS_R_SETTINGS, _T("SPCAllowAnimationWhenBuffering"), TRUE);
+        r.subPicQueueSettings.nSize = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SPCSIZE, 10);
+        r.subPicQueueSettings.nMaxRes = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SPCMAXRES, 0);
+        r.subPicQueueSettings.bDisableSubtitleAnimation = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_DISABLE_SUBTITLE_ANIMATION, FALSE);
+        r.subPicQueueSettings.nRenderAtWhenAnimationIsDisabled = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_RENDER_AT_WHEN_ANIM_DISABLED, 50);
+        r.subPicQueueSettings.nAnimationRate = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_SUBTITLE_ANIMATION_RATE, 100);
+        r.subPicQueueSettings.bAllowDroppingSubpic = !!pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_ALLOW_DROPPING_SUBPIC, TRUE);
 
         r.iEvrBuffers = pApp->GetProfileInt(IDS_R_SETTINGS, IDS_RS_EVR_BUFFERS, 5);
         r.D3D9RenderDevice = pApp->GetProfileString(IDS_R_SETTINGS, IDS_RS_D3D9RENDERDEVICE);
@@ -1867,7 +1886,7 @@ void CAppSettings::ParseCommandLine(CAtlList<CString>& cmdln)
                 CString strFile = ParseFileName(cmdln.GetNext(pos));
                 int nPos = strFile.Find(_T("DELAY"));
                 if (nPos != -1) {
-                    rtShift = 10000 * _tstol(strFile.Mid(nPos + 6));
+                    rtShift = 10000i64 * _tstol(strFile.Mid(nPos + 6));
                 }
                 slDubs.AddTail(strFile);
             } else if (sw == _T("sub") && pos) {
@@ -1957,6 +1976,8 @@ void CAppSettings::ParseCommandLine(CAtlList<CString>& cmdln)
                 m_Shaders.SetCurrentPreset(cmdln.GetNext(pos));
             } else if (sw == _T("reset")) {
                 nCLSwitches |= CLSW_RESET;
+            } else if (sw == _T("monitoroff")) {
+                nCLSwitches |= CLSW_MONITOROFF;
             } else {
                 nCLSwitches |= CLSW_HELP | CLSW_UNRECOGNIZEDSWITCH;
             }
@@ -2071,7 +2092,7 @@ void CAppSettings::CRecentFileAndURLList::Add(LPCTSTR lpszPathName)
     ASSERT(lpszPathName != nullptr);
     ASSERT(AfxIsValidString(lpszPathName));
 
-    if (CString(lpszPathName).MakeLower().Find(_T("@device:")) >= 0) {
+    if (m_nSize <= 0 || CString(lpszPathName).MakeLower().Find(_T("@device:")) >= 0) {
         return;
     }
 
@@ -2100,6 +2121,22 @@ void CAppSettings::CRecentFileAndURLList::Add(LPCTSTR lpszPathName)
     }
     // place this one at the beginning
     m_arrNames[0] = pathName;
+}
+
+void CAppSettings::CRecentFileAndURLList::SetSize(int nSize)
+{
+    ENSURE_ARG(nSize >= 0);
+
+    if (m_nSize != nSize) {
+        CString* arrNames = new CString[nSize];
+        int nSizeToCopy = std::min(m_nSize, nSize);
+        for (int i = 0; i < nSizeToCopy; i++) {
+            arrNames[i] = m_arrNames[i];
+        }
+        delete [] m_arrNames;
+        m_arrNames = arrNames;
+        m_nSize = nSize;
+    }
 }
 
 bool CAppSettings::IsVSFilterInstalled()
@@ -2311,6 +2348,11 @@ void CAppSettings::UpdateSettings()
             autoChangeFSMode.uDelay = pApp->GetProfileInt(IDS_R_SETTINGS, _T("FullscreenResDelay"), 0);
 
             SaveSettingsAutoChangeFullScreenMode();
+        }
+        // no break
+        case 4: {
+            bool bDisableSubtitleAnimation = !pApp->GetProfileInt(IDS_R_SETTINGS, _T("SPCAllowAnimationWhenBuffering"), TRUE);
+            VERIFY(pApp->WriteProfileInt(IDS_R_SETTINGS, IDS_RS_DISABLE_SUBTITLE_ANIMATION, bDisableSubtitleAnimation));
         }
         // no break
         default:
